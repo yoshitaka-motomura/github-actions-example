@@ -32,16 +32,13 @@ jobs:
       - name: Update version
         id: update-version
         run: |
-          npm version ${{ github.event.inputs.version }} -m "Bump version to %s"
-          echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-          git push
-      - name: update app version
-        id: update-app-version
+          npm version ${{ github.event.inputs.version }} -m "Bump version to %s" && cd ./app &&
+          npm version ${{ github.event.inputs.version }} -m "app to %s" && cd ../
+          echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT      
+      - name: Push changes
         run: |
-          npm version ${{ github.event.inputs.version }} -m "Bump version to %s for app"
           git push
-        working-directory: ./app
-        
+
       - name: Generate Release Notes
         id: release-notes
         run: |
