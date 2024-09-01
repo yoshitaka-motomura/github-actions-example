@@ -29,22 +29,23 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Update root package.json version
+      - name: Update root package.json and package-lock.json
         id: update-root-version
         run: |
           npm version ${{ github.event.inputs.version }} -m "Bump root version to %s"
           echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Update app package.json version
+      - name: Update app package.json and package-lock.json
         run: |
           cd app
           npm version ${{ steps.update-root-version.outputs.new_version }} -m "Bump app version to %s"
+          npm install --package-lock-only
           cd ..
 
-      - name: Commit app package.json changes
+      - name: Commit all changes
         run: |
-          git add app/package.json
-          git commit -m "Update app package.json to version ${{ steps.update-root-version.outputs.new_version }}"
+          git add .
+          git commit -m "Update to version ${{ steps.update-root-version.outputs.new_version }} and update package-lock.json files"
 
       - name: Push changes
         run: |
