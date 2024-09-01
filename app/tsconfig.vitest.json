@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+
+      "src/**/*.ts",
+
+      "src/**/*.d.ts",
+
+      "src/**/*.vue",
+
+      "tests/**/*.ts",
+
+      "tests/**/*.d.ts",
+      "src/datadog.ts"
+    ],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "composite": true,
+    "lib": [],
+    "types": ["node", "jsdom"]
+  }
+}

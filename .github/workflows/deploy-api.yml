@@ -1,0 +1,23 @@
+name: repository-dispatch action
+on:
+  repository_dispatch:
+    types: [deploy]
+jobs:
+    deploy:
+        if: github.event.client_payload.version && (github.event.client_payload.environment == 'dev' || github.event.client_payload.environment == 'production')
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: '20'
+            - name: Install dependencies
+              run: npm ci
+            - name: Check out the tag
+              run: |
+                git checkout v${{ github.event.client_payload.version }}
+                echo "Checked out v${{ github.event.client_payload.version }}"
