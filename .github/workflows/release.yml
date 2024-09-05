@@ -52,16 +52,16 @@ jobs:
           git add .
           git commit -m "Update to version ${{ steps.update-root-version.outputs.new_version }} and update package-lock.json files"
 
-      - name: Push changes
-        run: |
-          git push
-
       - name: Generate Release Notes
         id: release-notes
         run: |
           echo "Release Notes for v${{ steps.update-root-version.outputs.new_version }}:" > RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
-          git log ${{ steps.previoustag.outputs.tag }}..HEAD --pretty=format:"- %s" >> RELEASE_NOTES.md
+          git log ${{ steps.previoustag.outputs.tag }}..HEAD^ --pretty=format:"- %s" | grep -vE "Bump (root|app) version to|Update to version|update package-lock.json" >> RELEASE_NOTES.md
+
+      - name: Push changes
+        run: |
+          git push
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
