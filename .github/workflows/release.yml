@@ -29,6 +29,11 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
+      - name: Get previous tag
+        id: previoustag
+        run: |
+          echo "tag=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)" >> $GITHUB_OUTPUT
+
       - name: Update root package.json and package-lock.json
         id: update-root-version
         run: |
@@ -54,10 +59,9 @@ jobs:
       - name: Generate Release Notes
         id: release-notes
         run: |
-          previous_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)
           echo "Release Notes for v${{ steps.update-root-version.outputs.new_version }}:" > RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
-          git log ${previous_tag}..HEAD --pretty=format:"- %s" >> RELEASE_NOTES.md
+          git log ${{ steps.previoustag.outputs.tag }}..HEAD --pretty=format:"- %s" >> RELEASE_NOTES.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
