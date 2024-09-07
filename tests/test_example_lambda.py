@@ -52,4 +52,8 @@ def test_lambda_handler_error(mock_dynamodb_table_error, mock_env_variables):
         example_lambda.lambda_handler({}, {})
 
 
-# 必要に応じて他のテストケースを追加
+def test_lambda_handler_error_other(mock_dynamodb_table_error):
+    """その他のエラーが発生した場合のテスト Exceptionを発生させる"""
+    mock_dynamodb_table_error.get_item.side_effect = Exception("Unknown error")
+    with pytest.raises(Exception):
+        example_lambda.lambda_handler({}, {})
