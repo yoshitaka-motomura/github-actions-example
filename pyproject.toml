@@ -1,0 +1,61 @@
+[project]
+name = "github-actions-example"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.35.14",
+    "moto[all]>=5.0.13", ]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.2",
+    "pytest-watch>=4.2.0",
+    "pytest-env>=1.1.3",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.6.4",
+]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = [
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",]
+
+[tool.pytest_env]
+TABLE_NAME = "test-table"
+REGION = "ap-northeast-1"
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/__init__.py"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "pass",
+    "except ImportError:",]
+
+[tool.ruff]
+preview = true
+indent-width = 4
+line-length = 120
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
