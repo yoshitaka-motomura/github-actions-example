@@ -2,6 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as path from 'node:path';
 export class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -23,7 +26,6 @@ export class CdkStack extends cdk.Stack {
     /**
     * Dynamodb Table Construct
     */
-
     const memoTable = new dynamodb.Table(this, 'MemoTable', {
       tableName: 'Memo',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
@@ -31,6 +33,44 @@ export class CdkStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
     })
 
+
+    /**
+    * Lambda Function Construct
+    */
+
+    const lambdaFunction = new lambda.Function(this, 'MemoFunction', {
+      runtime: lambda.Runtime.PYTHON_3_12,
+      memorySize: 256,
+      handler: 'memo_func.lambda_handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../src/lambda_functions')),
+      logRetention: cdk.aws_logs.RetentionDays.ONE_DAY,
+      functionName: 'MemoFunction',
+      environment: {
+        BUCKET_NAME: Bucket.bucketName,
+        TABLE_NAME: memoTable.tableName,
+      }
+    })
+    memoTable.grantReadWriteData(lambdaFunction)
+    Bucket.grantReadWrite(lambdaFunction)
+    const memoFuncIntegration = new apigateway.LambdaIntegration(lambdaFunction)
+
+    /**
+    * API Gateway Construct
+    */
+
+    const apigw = new apigateway.RestApi(this, 'MemoApi', {
+      restApiName: 'Memo API',
+      description: 'This service serves memo',
+    })
+
+    const memo = apigw.root.addResource('memo')
+    memo.addMethod('GET', memoFuncIntegration)
+
+    //deploy stage
+    const deployment = new apigateway.Deployment(this, 'MemoDeployment', {
+      api: apigw,
+      stageName: 'v1',
+    })
 
     /**
     * Output

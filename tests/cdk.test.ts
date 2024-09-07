@@ -34,5 +34,27 @@ describe('CDK Stack Resources Tests', () =>{
         BillingMode: 'PAY_PER_REQUEST',
         }));
     })
+    test('Lambda Function Created', () => {
+        expect(template.hasResourceProperties('AWS::Lambda::Function', {
+            Handler: 'memo_func.lambda_handler',
+            Runtime: 'python3.12',
+            MemorySize: 256,
+        }));
+    })
+
+    test('API Gateway Created', () => {
+        expect(template.resourceCountIs('AWS::ApiGateway::RestApi', 1));
+        expect(template.hasResourceProperties('AWS::ApiGateway::RestApi', {
+            Name: 'Memo API',
+            Description: 'This service serves memo'
+        }));
+    })
+
+    test('Lambda Function Integration', () => {
+        expect(template.hasResourceProperties('AWS::ApiGateway::Method', {
+            HttpMethod: 'GET',
+        }))
+    })
+
 });
 
