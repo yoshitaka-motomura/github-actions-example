@@ -15,3 +15,8 @@ but it is also an example of how to generate release tags almost automatically.
 * `uv sync`         create virtual environment and install dependencies
 * `uv run pytest`   run tests
 * `uv pip compile pyproject.toml -o requirements.txt` compile requirements pyproject.toml to requirements.txt
+
+### Reference
+- [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/home.html)
+- [Github Actions](https://docs.github.com/en/actions)
+- [uv](https://docs.astral.sh/uv/)
